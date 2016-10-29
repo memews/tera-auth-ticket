@@ -77,8 +77,8 @@ module.exports = function snare(callback) {
       serialized += value;
     }
 
-    const key = String.fromCharCode(0x7c, 0x4c, 0x45, 0x00, 0x63, 0x02, 0xc8, 0xa3);
-    const data = '0400' + base64.encode(des.encrypt(key, serialized));
+    const key = Buffer.from([0x7c, 0x4c, 0x45, 0x00, 0x63, 0x02, 0xc8, 0xa3]);
+    const data = '0400' + base64.encode(String.fromCharCode(...des(key, serialized)));
 
     // get url of next
     const next = base64.decode(body.match(/"src",_i_[a-z]+\.__if_[a-z]+\("(.+?)"\)/i)[1]);
