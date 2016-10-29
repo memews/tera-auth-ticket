@@ -1,0 +1,14 @@
+{
+  "name": "tera-auth-ticket",
+  "version": "1.0.0",
+  "description": "Simulate logging onto an EME TERA account to retrieve an auth ticket",
+  "license": "ISC",
+  "author": "meishu",
+  "main": "index.js",
+  "dependencies": {
+    "request": "^2.74.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  }
+}
