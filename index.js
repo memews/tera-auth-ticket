@@ -128,7 +128,7 @@ class webClient {
     console.log('[web] (login) authenticating');
 
     this.request.post({
-      url: '/authenticate',
+      url: '/launcher/1/authenticate',
       headers: makeHeaders({
         'Referer': 'https://account.enmasse.com/',
       }),
