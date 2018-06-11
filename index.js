@@ -1,15 +1,19 @@
-const url = require('url');
+'use strict';
+
 const request = require('request');
+const snare = require('./snare');
 
 function makeHeaders(o) {
-  return Object.assign({
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Accept-Language': 'en-us,en',
-    'Accept-Charset': 'iso-8859-1,*,utf-8',
-    'Host': 'account.enmasse.com',
-    'Origin': 'https://account.enmasse.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1046.0 Safari/535.21',
-  }, o);
+  return Object.assign({},
+    {
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-us,en',
+      'Accept-Charset': 'iso-8859-1,*,utf-8',
+      'Host': 'account.enmasse.com',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1046.0 Safari/535.21',
+    },
+    o
+  );
 }
 
 class webClient {
@@ -83,7 +87,7 @@ class webClient {
   /* ********
    * signin()
    * ********
-   * Pulls CSRF token.
+   * Pulls CSRF token and gets snare.js blackbox result.
    */
   _signin(callback) {
     if (this.ready === 1) {
@@ -109,12 +113,18 @@ class webClient {
         return;
       }
 
-      this._authenticate(callback, {
-        'authenticity_token': token[1],
-        'user[client_time]': '',
-        'user[io_black_box]': '.',
-        'user[email]': this.email,
-        'user[password]': this.pass,
+      console.log('[web] (login) getting blackbox');
+
+      snare((err, blackbox) => {
+        if (err) return;
+        this._authenticate(callback, {
+          'utf8': '✓',
+          'authenticity_token': token[1],
+          'user[client_time]': '',
+          'user[io_black_box]': blackbox,
+          'user[email]': this.email,
+          'user[password]': this.pass,
+        });
       });
     });
   };
@@ -128,8 +138,10 @@ class webClient {
     console.log('[web] (login) authenticating');
 
     this.request.post({
-      url: '/launcher/1/authenticate',
+      url: '/authenticate',
       headers: makeHeaders({
+        'Host': 'account.enmasse.com',
+        'Origin': 'https://account.enmasse.com',
         'Referer': 'https://account.enmasse.com/',
       }),
       form: params,
@@ -144,8 +156,11 @@ class webClient {
         return;
       }
 
-      this.ready = 1;
-      callback();
+      // request won't auto-follow if we didn't use GET
+      this.request(res.headers.location, () => {
+        this.ready = 1;
+        callback();
+      });
     });
   };
 }
