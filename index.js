@@ -138,7 +138,7 @@ class webClient {
     console.log('[web] (login) authenticating');
 
     this.request.post({
-      url: '/authenticate',
+      url: '/launcer/1/authenticate',
       headers: makeHeaders({
         'Host': 'account.enmasse.com',
         'Origin': 'https://account.enmasse.com',
